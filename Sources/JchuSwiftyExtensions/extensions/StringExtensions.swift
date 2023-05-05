@@ -292,4 +292,11 @@ public extension String {
         
         return final
     }
+    
+    func getNumberOfWords() -> Int {
+        let chararacterSet = CharacterSet.whitespacesAndNewlines.union(.punctuationCharacters)
+        let components = self.components(separatedBy: chararacterSet)
+        let words = components.filter { !$0.isEmpty }
+        return words.count
+    }
 }
