@@ -2,7 +2,8 @@
 //  ColorExtensions.swift
 //  
 //
-//  Created by Jéluchu on 4/5/23.
+//  Authors: Jeluchu
+//  Creation: 4/5/23
 //
 
 import SwiftUI

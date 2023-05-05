@@ -2,28 +2,19 @@
 //  DateExtensions.swift
 //  
 //
-//  Created by EstrHuP on 4/5/23.
+//  Authors: EstrHuP and Jeluchu
+//  Creation: 4/5/23
 //
 
 import Foundation
-
-extension DateFormatter {
-
-    convenience init(dateFormat: String) {
-        self.init()
-        self.dateFormat = dateFormat
-        self.locale = Locale.autoupdatingCurrent
-        self.timeZone = TimeZone.autoupdatingCurrent
-    }
-}
 
 public extension Date {
     
     //MARK: - Date Formatter
     
     struct Formatter {
-
-    // Services formats
+        
+        // Services formats
         static let serviceISOTimeZone = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
         static let timeShort = "HH:mm"
     }
@@ -43,7 +34,7 @@ public extension Date {
         let seconds = -TimeInterval(timezone.secondsFromGMT(for: self))
         return Date(timeInterval: seconds, since: self)
     }
-
+    
     /// Convert UTC (or GMT) to local time
     func toLocalTime() -> Date {
         let timezone = TimeZone.current
@@ -99,7 +90,117 @@ public extension Date {
         let dateComponents = self.getComponents()
         let compDateComponents = compareDate.getComponents()
         return dateComponents.day == compDateComponents.day &&
-            dateComponents.month == compDateComponents.month &&
-            dateComponents.year == compDateComponents.year
+        dateComponents.month == compDateComponents.month &&
+        dateComponents.year == compDateComponents.year
+    }
+    
+    func formattedStringToDate(date: String) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd-MM-yyyy"
+        dateFormatter.timeZone = TimeZone(abbreviation: "GMT+0:00")
+        guard let commingDate = dateFormatter.date(from: date) else {
+            return "there is no date"
+        }
+        return formattedEachDay(date: commingDate, dateFormatter: dateFormatter)
+    }
+    
+    /// "EEEE dd MMMM yyyy"
+    func formattedStringToFullDate(date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEEE dd MMMM yyyy"
+        return dateFormatter.string(from: date)
+    }
+    
+    /// "dd MMMM yyyy"
+    func formattedStringToHalfDate(date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd MMMM yyyy"
+        return dateFormatter.string(from: date)
+    }
+    
+    func stringToDate(date: String) -> Date {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        dateFormatter.timeZone = TimeZone(abbreviation: "GMT+0:00")
+        dateFormatter.date(from: date)
+        return dateFormatter.date(from: date) ?? Date(timeIntervalSinceNow: 00-00-0000)
+    }
+    
+    func stringToDateC(date: String) -> Date {
+        var valueDate = date
+        if date.count > 8 {
+            valueDate = String(date.prefix(8))
+        }
+        valueDate.insert("-", at: valueDate.index(valueDate.startIndex, offsetBy: 6))
+        valueDate.insert("-", at: valueDate.index(valueDate.startIndex, offsetBy: 4))
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        dateFormatter.timeZone = TimeZone(abbreviation: "GMT+0:00")
+        dateFormatter.date(from: valueDate)
+        return dateFormatter.date(from: valueDate) ?? Date(timeIntervalSinceNow: 00-00-0000)
+    }
+    func formattedDateToString(date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd-MM-yyyy"
+        dateFormatter.timeZone = TimeZone(abbreviation: "GMT+0:00")
+        return formattedEachDay(date: date, dateFormatter: dateFormatter)
+    }
+    
+    func formattedDayWeekMonthYear(date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE, dd MMMM yyyy"
+        return formatter.string(from: date)
+    }
+    
+    func formattedYearMonthAndDay(date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
+    }
+    
+    /// E, dd MMMM yyyy, HH:mm
+    /// Example: Seg, 24 maio 2021, 08:46
+    func formattedWeekDayMonthYearDateTime(date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "E, dd MMMM yyyy, HH:mm"
+        var stringDate = dateFormatter.string(from: date)
+        stringDate = stringDate.prefix(1).uppercased() + stringDate.dropFirst()
+        stringDate = stringDate.replacingOccurrences(of: ".", with: "")
+        return stringDate
+    }
+    
+    func formattedEachDay(date: Date, dateFormatter: DateFormatter) -> String {
+        let timeInterval = date.timeIntervalSinceNow
+        let calendar = Calendar.current
+        
+        let localDate = Date(timeIntervalSinceNow: timeInterval)
+        
+        if calendar.isDateInYesterday(localDate) {
+            dateFormatter.dateFormat = "dd MMM"
+            return String(
+                format: "%@ | %@",
+                dateFormatter.string(from: date),
+                NSLocalizedString("date_yesterday", comment: "")
+            ).uppercased()
+        }else if !calendar.isDate(Date(), equalTo: date, toGranularity: .year) {
+            dateFormatter.dateFormat = "dd MMM yyyy | EEEE"
+            dateFormatter.string(from: date)
+            return dateFormatter.string(from: date).uppercased()
+        } else {
+            dateFormatter.dateFormat = "dd MMM | EEEE"
+            dateFormatter.string(from: date)
+            return dateFormatter.string(from: date).uppercased()
+        }
+    }
+}
+
+
+extension DateFormatter {
+    convenience init(dateFormat: String) {
+        self.init()
+        self.dateFormat = dateFormat
+        self.locale = Locale.autoupdatingCurrent
+        self.timeZone = TimeZone.autoupdatingCurrent
     }
 }
